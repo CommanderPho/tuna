@@ -2,18 +2,18 @@ $ErrorActionPreference = 'Stop'
 
 $scriptDir = $PSScriptRoot
 $parentDir = Split-Path $scriptDir -Parent
-$finalPublishDir = [System.IO.Path]::Combine($parentDir, [char]0x8F6F + [char]0x4EF6 + [char]0x53D1 + [char]0x5E03)
+$finalPublishDir = Join-Path $parentDir 'publish-output'
 
 # Use a temp English directory for dotnet publish output to avoid encoding issues
 $tempPublishDir = Join-Path $env:TEMP 'App_PublishOutput'
 
-# ── 动态获取项目名称 ──
+# ── Resolve project name dynamically ──
 $csprojFiles = Get-ChildItem -Path $scriptDir -Filter *.csproj
-if ($csprojFiles.Count -eq 0) { throw '找不到 .csproj 文件' }
+if ($csprojFiles.Count -eq 0) { throw 'No .csproj file found' }
 $projectPath = $csprojFiles[0].FullName
 $projectName = $csprojFiles[0].BaseName
 
-# ── 停止运行中的实例 ──
+# ── Stop running instances ──
 Write-Host "Stopping running instances of $projectName and Tuna..."
 $runningInstances = Get-Process -Name $projectName, 'Tuna' -ErrorAction SilentlyContinue
 foreach ($process in $runningInstances) {
@@ -78,13 +78,13 @@ function Remove-DirectoryWithRetry {
     }
 }
 
-# ── 清理旧构建产物 ──
+# ── Clean old build artifacts ──
 Write-Host 'Cleaning bin/obj...'
 Get-ChildItem -LiteralPath $scriptDir -Directory -Force |
     Where-Object { $_.Name -eq 'bin' -or $_.Name -eq 'obj' } |
     ForEach-Object { Remove-DirectoryWithRetry -Path $_.FullName }
 
-# ── 初始化 MSVC C++ 工具链（NativeAOT 需要 link.exe） ──
+# ── Initialize MSVC C++ toolchain (NativeAOT needs link.exe) ──
 function Initialize-MsvcToolchain() {
     $vswhereExe = Join-Path $env:ProgramFiles 'Microsoft Visual Studio\Installer\vswhere.exe'
     if (-not (Test-Path -LiteralPath $vswhereExe)) {
@@ -126,7 +126,7 @@ function Initialize-MsvcToolchain() {
 Write-Host 'Initializing MSVC toolchain for NativeAOT...'
 Initialize-MsvcToolchain
 
-# ── 清理临时发布目录 ──
+# ── Clean temp publish directory ──
 if (Test-Path $tempPublishDir) {
     Remove-Item -LiteralPath $tempPublishDir -Recurse -Force
 }
@@ -134,12 +134,12 @@ New-Item -ItemType Directory -Path $tempPublishDir | Out-Null
 
 # (projectPath is already resolved dynamically above)
 
-# ── NuGet 还原 ──
+# ── NuGet restore ──
 Write-Host 'Restoring NuGet packages...'
 & dotnet restore $projectPath -r win-x64
 if ($LASTEXITCODE -ne 0) { throw 'dotnet restore failed.' }
 
-# ── NativeAOT 发布到临时目录 ──
+# ── NativeAOT publish to temp directory ──
 Write-Host 'Publishing with NativeAOT (single exe, no IL)...'
 $publishArgs = @(
     'publish', $projectPath,
@@ -156,7 +156,7 @@ $publishArgs = @(
 & dotnet @publishArgs
 if ($LASTEXITCODE -ne 0) { throw 'dotnet publish failed.' }
 
-# ── UPX 压缩函数 ──
+# ── UPX compression helper ──
 function Compress-WithUpx($targetExePath) {
     Write-Host 'Checking for UPX...'
     $upxDir = Join-Path $env:TEMP 'upx_tools'
@@ -225,7 +225,7 @@ $realExeName = $exeFiles[0].BaseName
 # Run UPX compression on the target exe before publishing
 Compress-WithUpx $tempExe
 
-# ── 清理最终发布目录，只放 exe ──
+# ── Clean final publish directory; keep only the exe ──
 # Re-resolve these values after UPX. This avoids relying on variables that may be
 # overwritten by external tools or a caller's PowerShell scope.
 $stagedExe = Get-ChildItem -LiteralPath $tempPublishDir -Filter '*.exe' -File |
@@ -235,13 +235,7 @@ if ($null -eq $stagedExe) {
 }
 
 $resolvedParentDir = Split-Path $scriptDir -Parent
-$releaseFolderName = -join @(
-    [char]0x8F6F,
-    [char]0x4EF6,
-    [char]0x53D1,
-    [char]0x5E03
-)
-$resolvedFinalPublishDir = Join-Path -Path $resolvedParentDir -ChildPath $releaseFolderName
+$resolvedFinalPublishDir = Join-Path -Path $resolvedParentDir -ChildPath 'publish-output'
 if ([string]::IsNullOrWhiteSpace($resolvedFinalPublishDir)) {
     throw 'Unable to resolve the final publish directory.'
 }
@@ -258,10 +252,10 @@ if (-not (Test-Path -LiteralPath $publishedExePath -PathType Leaf)) {
     throw ('Published exe copy failed: ' + $publishedExePath)
 }
 
-# ── 清理临时目录 ──
+# ── Clean temp directory ──
 Remove-DirectoryWithRetry -Path $tempPublishDir
 
-# ── 报告最终大小 ──
+# ── Report final size ──
 $exeInfo = Get-Item -LiteralPath $publishedExePath
 $sizeMB = [math]::Round($exeInfo.Length / 1MB, 2)
 Write-Host ''
@@ -276,7 +270,7 @@ if ($sizeMB -lt 10) {
     Write-Host ('Size is ' + $sizeMB + 'MB, above 10MB target.') -ForegroundColor Yellow
 }
 
-# ── 启动测试 ──
+# ── Launch for smoke test ──
 if ($env:NO_AUTO_START -ne '1') {
     Write-Host ('Starting ' + $stagedExe.BaseName + '...')
     Start-Process -FilePath $publishedExePath -WorkingDirectory $resolvedFinalPublishDir | Out-Null

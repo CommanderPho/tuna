@@ -1153,8 +1153,8 @@ namespace ExplorerHistoryTracker
                     else if (DataContext is MainViewModel activationViewModel)
                     {
                         activationViewModel.ShowAlert(
-                            "目录已切换",
-                            "目录已经切换，但原文件对话框的身份发生变化，面板未自动隐藏。");
+                            "Directory switched",
+                            "The directory was switched, but the original file dialog identity changed, so the panel was not auto-hidden.");
                     }
                     return;
                 }
@@ -1170,7 +1170,7 @@ namespace ExplorerHistoryTracker
 
                 if (DataContext is MainViewModel viewModel)
                 {
-                    viewModel.ShowAlert("目录切换失败", result.Message);
+                    viewModel.ShowAlert("Directory switch failed", result.Message);
                 }
             }
             catch (Exception ex)
@@ -1178,8 +1178,8 @@ namespace ExplorerHistoryTracker
                 if (DataContext is MainViewModel viewModel)
                 {
                     viewModel.ShowAlert(
-                        "目录切换失败",
-                        $"操作目标文件对话框时发生错误：\n{ex.Message}");
+                        "Directory switch failed",
+                        $"An error occurred while operating on the target file dialog:\n{ex.Message}");
                 }
             }
             finally
@@ -1212,7 +1212,7 @@ namespace ExplorerHistoryTracker
                 {
                     vm.OpenFolderCommand.Execute(null);
                 }
-                Debug.WriteLine($"无法打开数据文件夹: {ex.Message}");
+                Debug.WriteLine($"Could not open data folder: {ex.Message}");
             }
         }
 

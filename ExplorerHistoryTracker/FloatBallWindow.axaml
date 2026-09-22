@@ -47,10 +47,10 @@
             <ContextMenu x:Name="PetContextMenu"
                          Opening="PetContextMenu_Opening"
                          Closing="PetContextMenu_Closing">
-                <MenuItem Header="隐藏宠物" Click="HideMenuItem_Click"/>
-                <MenuItem Header="设置" Click="SettingsMenuItem_Click"/>
+                <MenuItem Header="Hide pet" Click="HideMenuItem_Click"/>
+                <MenuItem Header="Settings" Click="SettingsMenuItem_Click"/>
                 <Separator/>
-                <MenuItem Header="退出程序" Click="ExitMenuItem_Click"/>
+                <MenuItem Header="Exit" Click="ExitMenuItem_Click"/>
             </ContextMenu>
         </Panel.ContextMenu>
 

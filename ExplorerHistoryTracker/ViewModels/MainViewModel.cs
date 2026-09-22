@@ -401,7 +401,7 @@ namespace ExplorerHistoryTracker.ViewModels
                     {
                         Dispatcher.UIThread.Post(() =>
                         {
-                            ShowAlert("打开失败", $"路径不存在:\n{item.Path}");
+                            ShowAlert("Open failed", $"Path does not exist:\n{item.Path}");
                         });
                     }
                 }
@@ -409,7 +409,7 @@ namespace ExplorerHistoryTracker.ViewModels
                 {
                     Dispatcher.UIThread.Post(() =>
                     {
-                        ShowAlert("打开失败", $"无法打开目标:\n{ex.Message}");
+                        ShowAlert("Open failed", $"Could not open target:\n{ex.Message}");
                     });
                 }
             });
@@ -433,13 +433,13 @@ namespace ExplorerHistoryTracker.ViewModels
                     }
                     catch (Exception ex)
                     {
-                        ShowAlert("复制失败", $"无法复制到剪贴板:\n{ex.Message}");
+                        ShowAlert("Copy failed", $"Could not copy to clipboard:\n{ex.Message}");
                     }
                 });
             }
             catch (Exception ex)
             {
-                ShowAlert("复制失败", $"无法复制到剪贴板:\n{ex.Message}");
+                ShowAlert("Copy failed", $"Could not copy to clipboard:\n{ex.Message}");
             }
         }
 
@@ -466,7 +466,7 @@ namespace ExplorerHistoryTracker.ViewModels
 
         private void ClearAllHistory()
         {
-            ShowConfirm("确认清空", "确定要清空所有历史访问记录吗？\n(这会同时清除文件夹和软件历史)", () =>
+            ShowConfirm("Clear history", "Clear all access history?\n(This removes both folder and app/file history)", () =>
             {
                 _configManager.Config.FolderHistory.Clear();
                 _configManager.Config.AppAndFileHistory.Clear();
@@ -1111,7 +1111,7 @@ namespace ExplorerHistoryTracker.ViewModels
             {
                 Dispatcher.UIThread.Post(() =>
                 {
-                    ShowAlert("同步失败", $"同步系统历史记录失败:\n{ex.Message}");
+                    ShowAlert("Sync failed", $"Failed to sync system history:\n{ex.Message}");
                 });
             }
             finally
@@ -1269,7 +1269,7 @@ namespace ExplorerHistoryTracker.ViewModels
             {
                 var dialog = new OpenFolderDialog
                 {
-                    Title = "选择 Codex 宠物文件夹"
+                    Title = "Select Codex pet folder"
                 };
 
                 var win = desktop.MainWindow;
@@ -1297,7 +1297,7 @@ namespace ExplorerHistoryTracker.ViewModels
             string petJsonPath = Path.Combine(sourceDir, "pet.json");
             if (!File.Exists(petJsonPath))
             {
-                ShowAlert("错误", "所选文件夹中未找到 pet.json，请确认是否为有效的 Codex 宠物包。");
+                ShowAlert("Error", "pet.json was not found in the selected folder. Confirm it is a valid Codex pet pack.");
                 return;
             }
 
@@ -1307,7 +1307,7 @@ namespace ExplorerHistoryTracker.ViewModels
                 var pet = JsonSerializer.Deserialize<CodexPet>(json, JsonContext.Default.CodexPet);
                 if (pet == null || string.IsNullOrEmpty(pet.Id))
                 {
-                    ShowAlert("错误", "无法解析 pet.json 配置文件。");
+                    ShowAlert("Error", "Could not parse the pet.json configuration file.");
                     return;
                 }
 
@@ -1315,7 +1315,7 @@ namespace ExplorerHistoryTracker.ViewModels
                 string spritesheetPath = Path.Combine(sourceDir, pet.SpritesheetPath);
                 if (!File.Exists(spritesheetPath))
                 {
-                    ShowAlert("错误", $"未找到精灵图文件 {pet.SpritesheetPath}。");
+                    ShowAlert("Error", $"Spritesheet file not found: {pet.SpritesheetPath}.");
                     return;
                 }
 
@@ -1349,11 +1349,11 @@ namespace ExplorerHistoryTracker.ViewModels
                 // Select the new pet!
                 SelectedPetId = pet.Id;
 
-                ShowAlert("成功", $"已成功添加宠物 {pet.DisplayName} 并已自动切换！");
+                ShowAlert("Success", $"Added pet {pet.DisplayName} and switched to it.");
             }
             catch (Exception ex)
             {
-                ShowAlert("错误", $"添加宠物失败: {ex.Message}");
+                ShowAlert("Error", $"Failed to add pet: {ex.Message}");
             }
         }
 
@@ -1361,7 +1361,7 @@ namespace ExplorerHistoryTracker.ViewModels
         {
             if (pet == null || !pet.IsDeletable) return;
 
-            ShowConfirm("确认删除", $"确定要删除桌面宠物“{pet.DisplayName}”吗？\n(该宠物包将从数据文件夹中永久删除)", () =>
+            ShowConfirm("Confirm delete", $"Delete desktop pet \"{pet.DisplayName}\"?\n(The pet pack will be permanently removed from the data folder)", () =>
             {
                 try
                 {
@@ -1376,11 +1376,11 @@ namespace ExplorerHistoryTracker.ViewModels
                     }
 
                     LoadAvailablePets();
-                    ShowAlert("删除成功", $"桌面宠物“{pet.DisplayName}”已被移除！");
+                    ShowAlert("Deleted", $"Desktop pet \"{pet.DisplayName}\" has been removed.");
                 }
                 catch (Exception ex)
                 {
-                    ShowAlert("错误", $"删除宠物失败: {ex.Message}");
+                    ShowAlert("Error", $"Failed to delete pet: {ex.Message}");
                 }
             });
         }

@@ -5,7 +5,7 @@ using Avalonia.Data.Converters;
 namespace ExplorerHistoryTracker.Converters
 {
     /// <summary>
-    /// Converts a DateTime object into a relative friendly time string (e.g. "刚刚", "5分钟前", "昨天 14:32").
+    /// Converts a DateTime object into a relative friendly time string (e.g. "Just now", "5 min ago", "Yesterday 14:32").
     /// </summary>
     public class RelativeTimeConverter : IValueConverter
     {
@@ -18,28 +18,28 @@ namespace ExplorerHistoryTracker.Converters
                 // Handle future date edge cases due to clock skew
                 if (span.TotalSeconds < 0)
                 {
-                    return "刚刚";
+                    return "Just now";
                 }
 
                 if (span.TotalSeconds < 60)
                 {
-                    return "刚刚";
+                    return "Just now";
                 }
                 if (span.TotalMinutes < 60)
                 {
-                    return $"{(int)span.TotalMinutes}分钟前";
+                    return $"{(int)span.TotalMinutes} min ago";
                 }
                 if (span.TotalHours < 24)
                 {
-                    return $"{(int)span.TotalHours}小时前";
+                    return $"{(int)span.TotalHours} hr ago";
                 }
                 if (span.TotalDays < 2)
                 {
-                    return $"昨天 {dateTime:HH:mm}";
+                    return $"Yesterday {dateTime:HH:mm}";
                 }
                 if (span.TotalDays < 7)
                 {
-                    return $"{(int)span.TotalDays}天前";
+                    return $"{(int)span.TotalDays} days ago";
                 }
 
                 return dateTime.ToString("yyyy-MM-dd HH:mm");

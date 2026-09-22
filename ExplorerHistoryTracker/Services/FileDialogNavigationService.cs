@@ -322,7 +322,7 @@ namespace ExplorerHistoryTracker.Services
                 return Result(
                     FileDialogNavigationStatus.InvalidPath,
                     IntPtr.Zero,
-                    $"检查目标路径超时，请确认网络位置或磁盘是否可用：\n{requestedPath}");
+                    $"Timed out checking the target path. Confirm the network location or disk is available:\n{requestedPath}");
             }
 
             string? navigationPath = await pathResolutionTask;
@@ -331,7 +331,7 @@ namespace ExplorerHistoryTracker.Services
                 return Result(
                     FileDialogNavigationStatus.InvalidPath,
                     IntPtr.Zero,
-                    $"路径不存在或无法取得所在文件夹：\n{requestedPath}");
+                    $"Path does not exist or its parent folder could not be resolved:\n{requestedPath}");
             }
 
             if (!TryGetValidatedTarget(
@@ -366,15 +366,15 @@ namespace ExplorerHistoryTracker.Services
                     CommandDispatchResult.TargetExpired => Result(
                         FileDialogNavigationStatus.TargetExpired,
                         snapshot.Handle,
-                        "原来的打开/另存为窗口已经失效。"),
+                        "The original Open/Save As window is no longer valid."),
                     CommandDispatchResult.WriteFailed => Result(
                         FileDialogNavigationStatus.WriteFailed,
                         snapshot.Handle,
-                        "无法把目录写入目标文件对话框，可能存在权限隔离。"),
+                        "Could not write the directory into the target file dialog; permission isolation may apply."),
                     _ => Result(
                         FileDialogNavigationStatus.CommandFailed,
                         snapshot.Handle,
-                        "目标文件对话框没有响应目录切换命令。")
+                        "The target file dialog did not respond to the directory switch command.")
                 };
             }
 
@@ -388,7 +388,7 @@ namespace ExplorerHistoryTracker.Services
                     return Result(
                         FileDialogNavigationStatus.DialogClosed,
                         snapshot.Handle,
-                        "目标打开/另存为窗口在切换过程中已关闭。面板没有自动隐藏。");
+                        "The target Open/Save As window closed during the switch. The panel was not auto-hidden.");
                 }
 
                 if (targetState == TargetValidationState.Expired)
@@ -396,7 +396,7 @@ namespace ExplorerHistoryTracker.Services
                     return Result(
                         FileDialogNavigationStatus.TargetExpired,
                         snapshot.Handle,
-                        "目录切换目标已被新的面板激活会话替换，当前操作已停止。" );
+                        "The directory switch target was replaced by a new panel activation session; the current operation stopped." );
                 }
 
                 if (targetState == TargetValidationState.NotStandardDialog)
@@ -405,7 +405,7 @@ namespace ExplorerHistoryTracker.Services
                     return Result(
                         FileDialogNavigationStatus.NotStandardDialog,
                         snapshot.Handle,
-                        "目标窗口已不再是受支持的标准打开/另存为窗口。" );
+                        "The target window is no longer a supported standard Open/Save As dialog." );
                 }
 
                 DialogObservation observation = await Task.Run(() =>
@@ -454,7 +454,7 @@ namespace ExplorerHistoryTracker.Services
                     return Result(
                         FileDialogNavigationStatus.NavigationNotObserved,
                         snapshot.Handle,
-                        "目录命令已经发送，但未能确认文件对话框完成切换。面板已保留，请检查目标窗口。" );
+                        "The directory command was sent, but the file dialog switch could not be confirmed. The panel was kept; check the target window." );
                 }
 
                 int waitMilliseconds = Math.Min(
@@ -544,7 +544,7 @@ namespace ExplorerHistoryTracker.Services
                 failure = Result(
                     FileDialogNavigationStatus.TargetExpired,
                     snapshot.Handle,
-                    "原来的打开/另存为窗口已经关闭或被替换。" );
+                    "The original Open/Save As window has been closed or replaced." );
                 return false;
             }
 
@@ -554,7 +554,7 @@ namespace ExplorerHistoryTracker.Services
                 failure = Result(
                     FileDialogNavigationStatus.NotStandardDialog,
                     snapshot.Handle,
-                    "当前目标不是受支持的 Windows 标准打开/另存为窗口。" );
+                    "The current target is not a supported standard Windows Open/Save As dialog." );
                 return false;
             }
 
@@ -569,8 +569,8 @@ namespace ExplorerHistoryTracker.Services
                     resolveFailure,
                     snapshot.Handle,
                     resolveFailure == FileDialogNavigationStatus.ConfirmButtonNotFound
-                        ? "没有找到目标文件对话框的标准确认按钮。"
-                        : "没有找到目标文件对话框的标准文件名控件。" );
+                        ? "The standard confirm button was not found on the target file dialog."
+                        : "The standard filename control was not found on the target file dialog." );
                 return false;
             }
 

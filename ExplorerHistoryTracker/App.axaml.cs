@@ -47,7 +47,7 @@ namespace ExplorerHistoryTracker
                 bool refreshBuiltInCatalog =
                     configManager.Config.BuiltInPetCatalogVersion < currentBuiltInPetCatalogVersion;
 
-                // 资源目录名可以与安装后的宠物包目录名不同。
+                // Asset folder names may differ from installed pet pack directory names.
                 (string PetId, string AssetFolder)[] allBuiltInPets =
                 {
                     ("douya-chick", "douya-chick.codex-pet"),
@@ -56,7 +56,7 @@ namespace ExplorerHistoryTracker
                     ("ikkun", "ikkun.codex-pet")
                 };
 
-                // 首次安装或内置库升级时写入全部宠物；以后只恢复不可删除的小黄鸡。
+                // On first install or built-in catalog upgrade, install all pets; later only restore the non-deletable chick.
                 (string PetId, string AssetFolder)[] builtInPets =
                     isFirstBuiltInInstall || refreshBuiltInCatalog
                         ? allBuiltInPets
@@ -112,7 +112,7 @@ namespace ExplorerHistoryTracker
 
                 if (refreshBuiltInCatalog && builtInCopySucceeded)
                 {
-                    // 清理已从新版内置库退役的旧宠物包，不影响其他自定义宠物。
+                    // Remove pet packs retired from the new built-in catalog; leave custom pets alone.
                     string[] retiredBuiltInPets = { "tuna", "xiaoda", "yuno" };
                     foreach (string retiredPetId in retiredBuiltInPets)
                     {

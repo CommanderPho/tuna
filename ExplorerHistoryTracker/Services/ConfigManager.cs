@@ -22,9 +22,9 @@ namespace ExplorerHistoryTracker.Services
         public bool IsFloatBallEnabled { get; set; } = false;
         public int FloatBallX { get; set; } = -1;
         public int FloatBallY { get; set; } = -1;
-        // tuna 小黄鸡是始终可用、不可删除的默认桌面宠物。
+        // The tuna chick is the always-available, non-deletable default desktop pet.
         public string SelectedPetId { get; set; } = "douya-chick";
-        // 首次启动时安装全部内置宠物；以后仅确保 tuna 小黄鸡存在。
+        // On first launch install all built-in pets; later only ensure the tuna chick exists.
         public bool BuiltInPetsInitialized { get; set; }
         public bool DefaultPetMigratedToDouya { get; set; }
         public int BuiltInPetAssetVersion { get; set; }

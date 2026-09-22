@@ -10,6 +10,7 @@ obj/
 .vscode/
 
 ## Build Release Outputs
+publish-output/
 软件发布/
 PublishOutput/
 App_PublishOutput/
@@ -22,4 +23,3 @@ App_PublishOutput/
 stderr.txt
 stdout.txt
 crash_log.txt
-

@@ -1,0 +1,4 @@
+@echo off
+setlocal
+powershell -NoProfile -ExecutionPolicy Bypass -Command "$ErrorActionPreference='Stop'; $root='%~dp0'; $pub=Join-Path $root 'publish-output'; $dirs=Get-ChildItem -Path $root -Directory; $proj=$null; foreach ($d in $dirs) { $cs=Get-ChildItem -Path $d.FullName -Filter *.csproj | Select-Object -First 1; if ($cs) { $proj=$cs; break } }; if (-not $proj) { Write-Host 'No .csproj found!'; exit 1 }; $projDir=$proj.DirectoryName; $projName=$proj.BaseName; Write-Host ('Building ' + $projName + '...'); Stop-Process -Name $projName,Tuna -Force -ErrorAction SilentlyContinue; Start-Sleep -Milliseconds 500; if (Test-Path -LiteralPath $pub) { Remove-Item -LiteralPath $pub -Recurse -Force }; New-Item -ItemType Directory -Path $pub | Out-Null; Set-Location -LiteralPath $projDir; $ps1=Join-Path $projDir 'publish.ps1'; if (Test-Path -LiteralPath $ps1) { $env:NO_AUTO_START='1'; & $ps1 } else { dotnet publish $proj.FullName -c Release -r win-x64 -o $pub }"
+pause
